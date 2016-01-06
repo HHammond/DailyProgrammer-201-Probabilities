@@ -10,6 +10,7 @@ from itertools import chain, combinations, groupby
 
 
 class Variable(object):
+    """Symbolic representation of a variable in the probability statement."""
 
     __slots__ = ['token', 'negation']
 
@@ -18,6 +19,7 @@ class Variable(object):
         self.negation = negation
 
     def __invert__(self):
+        """Compute compliment of this variable"""
         return Variable(self.token, not self.negation)
 
     def __str__(self):
@@ -38,10 +40,12 @@ class Variable(object):
             return hash(self) == hash(other)
 
     def is_exclusion(self):
+        """Check if this variable is the exclusion of a set."""
         return self.negation
 
 
 class Statement(object):
+    """Symbolic representation of a probability statement."""
 
     def __init__(self, variables):
         self.variables = frozenset(variables)
@@ -76,6 +80,10 @@ class Statement(object):
 
 
 def powerset(iterable, minimum=1):
+    """
+    Modified version of powerset function from Python's itertools
+    documentation.
+    """
     s = list(iterable)
     c = chain.from_iterable(combinations(s, r)
                             for r in range(minimum, len(s)+1))
@@ -118,7 +126,7 @@ def solve(symbols, input_data, to_solve):
 
     print("Steps:")
     print("-" * 40)
-    # Try solving things until we've tried everything and failed
+    # Try solving things until we have tried everything
     has_changed = True
     while has_changed:
         has_changed = False
@@ -165,7 +173,7 @@ def solve(symbols, input_data, to_solve):
                         known[unknown] = known[parent] - total
                         has_changed = True
                         print("Solved by difference:", unknown, "=", known[unknown])
-                        for e in span+[parent]:
+                        for e in span + [parent]:
                             if e == unknown:
                                 continue
                             print("|",e, "=", known.get(e))
@@ -188,8 +196,6 @@ def solve(symbols, input_data, to_solve):
 
     for s in all_statements:
         print(s, "=", known.get(s, "?"))
-        # for c in children[s]:
-        #     print(" ", c, "=", known.get(c, "?"))
 
     print("-" * 40)
     print("Solution:")
@@ -198,6 +204,7 @@ def solve(symbols, input_data, to_solve):
 
 
 def process_input():
+    """Read stdin to get symbols, known data, and statement to solve for."""
     n, symbols = input().split(None, 1)
     n = int(n)
     symbols = [Variable(s) for s in symbols.split()]
@@ -213,6 +220,7 @@ def process_input():
 
 
 def process_input_row(row, final_line=False):
+    """Convert text row to Symbols."""
     parse_symbols = lambda data: {Variable(s) for s in data if s != '&'}
 
     if not final_line:
